@@ -1,22 +1,35 @@
 import express from 'express'
 
+import pkg from '@prisma/client'
+const { PrismaClient } = pkg
+const prisma = new PrismaClient()
+
 const app = express()
 app.use(express.json())
 
-const usuarios=[]
+const usuarios = []
 
-app.get('/cadastro', (req,res)=>{
-    // console.log(req)
-    // res.send('Deu certo!')
-    // res.json(usuarios)
-    res.status(200).json(usuarios)
-})
+app.post('/cadastro', async (req, res) => {
 
-app.post('/cadastro', (req,res)=>{
-    // console.log(req.body)
-    usuarios.push(req.body)
-    //res.send('Ok POST')
+    await prisma.usuario.create({
+        data: {
+            email: req.body.email,
+            nome: req.body.nome,
+            idade: req.body.idade,
+        }
+    })
+
     res.status(201).json(req.body)
 })
 
-app.listen(3000,()=>{console.log("Servidor Rodando!")})
+app.get('/cadastro', async (req, res) => {
+
+    const lista_usuarios = await prisma.usuario.findMany();
+
+    res.status(200).json(lista_usuarios)
+
+})
+
+app.listen(3000, () => {
+    console.log('Servidor operando! Porta: localhost:3000');
+});
